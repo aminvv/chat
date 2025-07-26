@@ -1,17 +1,9 @@
-const { SupportSectionRouter } = require("./support.router/support.router");
-const namespaceRouter = require("./support/namespace.router");
-const { RoomSectionRouter } = require("./support/room.router");
+const { SupportSectionRouter } = require("./support/support.router");
 
 const router = require("express").Router();
 
-
-router.use("/support", SupportSectionRouter)
-router.use("/room", RoomSectionRouter)
-router.use("/namespace", namespaceRouter)
-
-
-
+router.use("/support", SupportSectionRouter);
 
 module.exports = {
     AllRoutes : router
-}
+};

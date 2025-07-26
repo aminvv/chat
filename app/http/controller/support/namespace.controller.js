@@ -1,6 +1,7 @@
 const Controller = require("./../controller")
 const { StatusCodes: HttpStatus } = require("http-status-codes")
 const { ConversationModel } = require("../../../models/conversation.model")
+const createHttpError = require("http-errors")
 
 
 class NameSpaceController extends Controller {
@@ -8,6 +9,7 @@ class NameSpaceController extends Controller {
     async addNameSpace(req, res, next) {
         try {
             const { title, endpoint } = req.body
+            await  this.findNamespaceWithEndpoint(endpoint)
             const conversation = await ConversationModel.create({
                 title,
                 endpoint
@@ -28,10 +30,10 @@ class NameSpaceController extends Controller {
 
     async getListOfNamespace(req, res, next) {
         try {
-            const namespace = await ConversationModel.find({},{rooms:0})
+            const namespace = await ConversationModel.find({}, { rooms: 0 })
             return res.status(HttpStatus.OK).json({
                 statusCode: HttpStatus.OK,
-                data:{
+                data: {
                     namespace
                 }
             })
@@ -44,9 +46,17 @@ class NameSpaceController extends Controller {
 
 
 
+    async findNamespaceWithEndpoint(endpoint) {
+        const conversation = await ConversationModel.findOne({ endpoint })
+        if (conversation) {
+            throw createHttpError.BadRequest(" This namespace has already been chosen.")
+        }
+    }
 
 
 }
+
+
 
 
 
