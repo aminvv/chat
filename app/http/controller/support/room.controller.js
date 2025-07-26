@@ -52,7 +52,7 @@ class RoomController extends Controller {
     async findNamespaceWithName(name) {
         const conversation = await ConversationModel.findOne({ "rooms.name": name })
         if (conversation) {
-            throw createHttpError.BadRequest(" This name has already been chosen.")
+            throw createHttpError.BadRequest("  This name has already been chosen.")
         }
     }
 

@@ -2,6 +2,7 @@ const express = require("express");
 const expressEjsLayouts = require("express-ejs-layouts");
 const { AllRoutes } = require("./router/router");
 const { initialSocket } = require("./utils/initSocket");
+const { socketHandler } = require("./socket.io");
 const SwaggerConfig = require("./../config/swagger.config");
 const connectToDB = require("../config/mongoose.config");
 const createError = require('http-errors'); 
@@ -38,6 +39,7 @@ module.exports = class Application {
     const http = require("http");
     const server = http.createServer(this.#app)
     const io = initialSocket(server)
+        socketHandler(io) 
     server.listen(this.#PORT, () => {
       console.log("server UI is running on http://localhost:" + this.#PORT);
     });
