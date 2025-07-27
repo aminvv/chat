@@ -70,7 +70,7 @@ module.exports = class Application {
 
   connectToMongoDB() {
     connectToDB(this.#DB_URI)
-  }
+  } 
 
 
     errorHandling() {
