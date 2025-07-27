@@ -1,38 +1,48 @@
-const {ConversationModel} = require("../models/conversation.model")
+const { ConversationModel } = require("../models/conversation.model")
 
-module.exports= class NamespaceSocketHandler {
+module.exports = class NamespaceSocketHandler {
     #io
-    constructor(io){
-        this.#io=io
+    constructor(io) {
+        this.#io = io
     }
 
-    initConnection(){
-        this.#io.on("connection",async socket=>{
-            const namespace=await ConversationModel.find({},{title:1,endpoint:1}).sort({_id:1})
-            socket.emit("namespaceList",namespace)
+    initConnection() {
+        this.#io.on("connection", async socket => {
+            const namespace = await ConversationModel.find({}, { title: 1, endpoint: 1 }).sort({ _id: 1 })
+            socket.emit("namespaceList", namespace)
         })
     }
 
 
 
-    async createNamespaceConnection(){
-            const namespaces=await ConversationModel.find({},{title:1,endpoint:1, rooms:1}).sort({_id:1})
-            for (const namespace of namespaces) {
-                this.#io.of(`/${namespace.endpoint}`).on("connection",async(socket)=>{
-                const conversation = await ConversationModel.findOne(
-                    {endpoint: namespace.endpoint}, 
-                    {rooms: 1}
-                ).sort({_id:1}).lean();
-            socket.emit("roomList",conversation.rooms)
+    async createNamespaceConnection() {
+        const namespaces = await ConversationModel.find({}, { title: 1, endpoint: 1, rooms: 1 }).sort({ _id: 1 })
+        for (const namespace of namespaces) {
+            this.#io.of(`/${namespace.endpoint}`).on("connection", async (socket) => {
+                const conversation = await ConversationModel.findOne({ endpoint: namespace.endpoint },{ rooms: 1 }).sort({ _id: 1 }).lean();
+
+
+                socket.on("joinRoom", roomName=>{
+                    const lastRoom=Array.from(socket.rooms)[1]
+                    if(lastRoom){
+                        socket.leave(lastRoom)
+                    }
+                    socket.join(roomName)
+                    const roomInfo= conversation.rooms.find(item=>item.name==roomName)
+                    socket.emit("roomInfo",roomInfo)
                 })
+
+
+                socket.emit("roomList", conversation.rooms)
+            })
         }
-        }
-
-
- 
-
- 
     }
+
+
+
+
+
+}
 
 
 

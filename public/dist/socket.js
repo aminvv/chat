@@ -1,6 +1,6 @@
 
 const socket = io("http://localhost:3000");
-
+let  namespaceSocket;
 
 function stringToHTML(str){
     const parser=new DOMParser()
@@ -15,6 +15,7 @@ function initNamespaceConnection(endpoint) {
     namespaceSocket = io(`http://localhost:3000/${endpoint}`)
     namespaceSocket.on("connect", () => {
         namespaceSocket.on("roomList", rooms => {
+            getRoomInfo(rooms[0]?.name)
             const roomsElement=document.querySelector("#contacts ul")
             roomsElement.innerHTML = ""
             for (const room of rooms) {
@@ -30,11 +31,26 @@ function initNamespaceConnection(endpoint) {
                 </li>`)
                 roomsElement.appendChild(html)
             } 
+            const roomNode=document.querySelectorAll("ul li.contact")
+            for (const room of roomNode) {
+                room.addEventListener("click",()=>{
+                    const roomName=room.getAttribute("roomName")
+                    getRoomInfo(roomName)
+                })
+            }
         })
     })
 }
 
 
+
+
+function getRoomInfo(roomName){
+namespaceSocket.emit("joinRoom",roomName)
+namespaceSocket.on("roomInfo",(roomInfo)=>{
+    document.querySelector("#roomName h3").innerText=roomInfo.description
+})
+}
 
 
 
