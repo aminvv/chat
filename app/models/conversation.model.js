@@ -11,7 +11,7 @@ const messageSchema = new mongoose.Schema({
 const roomSchema = new mongoose.Schema({
     name:{type:String,},
     description:{type:String,},
-    Image:{type:String,},
+    image:{type:String,},
     messages:{type:[messageSchema],default:[]},
 })
 
