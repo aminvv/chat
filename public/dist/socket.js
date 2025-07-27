@@ -1,10 +1,10 @@
 
 const socket = io("http://localhost:3000");
-let  namespaceSocket;
+let namespaceSocket;
 
-function stringToHTML(str){
-    const parser=new DOMParser()
-    const doc=parser.parseFromString(str,"text/html")
+function stringToHTML(str) {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(str, "text/html")
     return doc.body.firstChild
 }
 
@@ -16,10 +16,10 @@ function initNamespaceConnection(endpoint) {
     namespaceSocket.on("connect", () => {
         namespaceSocket.on("roomList", rooms => {
             getRoomInfo(rooms[0]?.name)
-            const roomsElement=document.querySelector("#contacts ul")
+            const roomsElement = document.querySelector("#contacts ul")
             roomsElement.innerHTML = ""
             for (const room of rooms) {
-                const html=stringToHTML(`
+                const html = stringToHTML(`
                 <li class="contact" roomName="${room.name}">
                     <div class="wrap">
                         <img src="${room.image}" height="40"/>
@@ -30,11 +30,11 @@ function initNamespaceConnection(endpoint) {
                     </div>
                 </li>`)
                 roomsElement.appendChild(html)
-            } 
-            const roomNode=document.querySelectorAll("ul li.contact")
+            }
+            const roomNode = document.querySelectorAll("ul li.contact")
             for (const room of roomNode) {
-                room.addEventListener("click",()=>{
-                    const roomName=room.getAttribute("roomName")
+                room.addEventListener("click", () => {
+                    const roomName = room.getAttribute("roomName")
                     getRoomInfo(roomName)
                 })
             }
@@ -45,11 +45,14 @@ function initNamespaceConnection(endpoint) {
 
 
 
-function getRoomInfo(roomName){
-namespaceSocket.emit("joinRoom",roomName)
-namespaceSocket.on("roomInfo",(roomInfo)=>{
-    document.querySelector("#roomName h3").innerText=roomInfo.description
-})
+function getRoomInfo(roomName) {
+    namespaceSocket.emit("joinRoom", roomName)
+    namespaceSocket.on("roomInfo", (roomInfo) => {
+        document.querySelector("#roomName h3").innerText = roomInfo.description
+    })
+    namespaceSocket.on("countOfOnlineUsers", count => {
+        document.getElementById("onlineCount").innerText=count
+    })
 }
 
 
@@ -58,22 +61,22 @@ socket.on("connect", () => {
     socket.on("namespaceList", namespaceList => {
         const namespaceElement = document.getElementById("namespaces")
         initNamespaceConnection(namespaceList[0].endpoint)
-           namespaceElement.innerHTML = ""
-         for (const namespace of namespaceList) {
+        namespaceElement.innerHTML = ""
+        for (const namespace of namespaceList) {
             const li = document.createElement("li");
             const p = document.createElement("p")
-            p.setAttribute("class","namespaceTitle")
-            p.setAttribute("endpoint",namespace.endpoint)
+            p.setAttribute("class", "namespaceTitle")
+            p.setAttribute("endpoint", namespace.endpoint)
             p.innerText = namespace.title
             li.appendChild(p)
-            namespaceElement . appendChild(li)
+            namespaceElement.appendChild(li)
         }
 
-        const namespaceNode=document.querySelectorAll("#namespaces li p.namespaceTitle")
+        const namespaceNode = document.querySelectorAll("#namespaces li p.namespaceTitle")
         for (const namespace of namespaceNode) {
-            namespace.addEventListener("click",()=>{
-                const endpoint=namespace.getAttribute("endpoint")
-                        initNamespaceConnection(endpoint)
+            namespace.addEventListener("click", () => {
+                const endpoint = namespace.getAttribute("endpoint")
+                initNamespaceConnection(endpoint)
             })
         }
     })
