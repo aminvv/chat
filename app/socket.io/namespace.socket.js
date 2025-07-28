@@ -19,7 +19,7 @@ module.exports = class NamespaceSocketHandler {
         const namespaces = await ConversationModel.find({}, { title: 1, endpoint: 1, rooms: 1 }).sort({ _id: 1 })
         for (const namespace of namespaces) {
             this.#io.of(`/${namespace.endpoint}`).on("connection", async (socket) => {
-                const conversation = await ConversationModel.findOne({ endpoint: namespace.endpoint }, { rooms: 1 }).sort({ _id: 1 }).lean();
+                const conversation = await ConversationModel.findOne({ endpoint: namespace.endpoint }, { rooms: 1,endpoint:1 }).sort({ _id: 1 }).lean();
 
 
                 socket.on("joinRoom", async roomName => {
@@ -46,12 +46,10 @@ module.exports = class NamespaceSocketHandler {
 
 
 
-    async getCountOfOnlineUsers(endpoint, roomName) {
-        const onlineUser = await this.#io.of(`/${endpoint}`).in(roomName).allSockets()
-        this.#io.of(`/${endpoint}`).in(roomName).emit("countOfOnlineUsers", Array.from(onlineUser).length)
-
+   async getCountOfOnlineUsers(endpoint, roomName) {
+        const onlineUsers = await this.#io.of(`/${endpoint}`).in(roomName).allSockets()
+        this.#io.of(`/${endpoint}`).in(roomName).emit("countOfOnlineUsers", Array.from(onlineUsers).length)
     }
-
 
 
 

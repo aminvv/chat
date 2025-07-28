@@ -12,6 +12,7 @@ function stringToHTML(str) {
 
 
 function initNamespaceConnection(endpoint) {
+    if(namespaceSocket)namespaceSocket.close()
     namespaceSocket = io(`http://localhost:3000/${endpoint}`)
     namespaceSocket.on("connect", () => {
         namespaceSocket.on("roomList", rooms => {
@@ -52,6 +53,7 @@ function getRoomInfo(roomName) {
     })
     namespaceSocket.on("countOfOnlineUsers", count => {
         document.getElementById("onlineCount").innerText=count
+        console.log(count);
     })
 }
 
