@@ -12,7 +12,7 @@ function stringToHTML(str) {
 
 
 function initNamespaceConnection(endpoint) {
-    if(namespaceSocket)namespaceSocket.close()
+    if (namespaceSocket) namespaceSocket.close()
     namespaceSocket = io(`http://localhost:3000/${endpoint}`)
     namespaceSocket.on("connect", () => {
         namespaceSocket.on("roomList", rooms => {
@@ -52,10 +52,71 @@ function getRoomInfo(roomName) {
         document.querySelector("#roomName h3").innerText = roomInfo.description
     })
     namespaceSocket.on("countOfOnlineUsers", count => {
-        document.getElementById("onlineCount").innerText=count
+        document.getElementById("onlineCount").innerText = count
         console.log(count);
     })
 }
+
+
+// function sendMessage() {
+//     message = document.querySelector("messageInput").value
+//     if (message.trim() === "") {
+//         return alert ("input message can not to be empty")
+//     }
+
+
+//     namespaceSocket.emit("newMessage", message)
+//     namespaceSocket.on("confirm", data => {
+//         console.log(data);
+//     })
+
+//     const li = stringToHTML(`
+//                 <li class="sent">
+//                     <img src="https://media-exp1.licdn.com/dms/image/C5603AQE3g9gHNfxGrQ/profile-displayphoto-shrink_200_200/0/1645507738281?e=1659571200&v=beta&t=wtwELdT1gp6ICp3UigC2EgutGAQgDP2sZKUx0mjCTwI"
+//                         alt="" />
+//                     <p>${message}</p>
+//                 </li>   
+//             `)
+//     document.querySelector(".messages ul").appendChild(li)
+// document.getElementById("messageInput").value = ""; 
+//     const messageElement = document.querySelector(".messages") 
+//     messageElement.scrollTo(0, messageElement.scrollHeight)
+// }
+
+
+
+
+
+function sendMessage(){
+
+    let message = document.querySelector(".message-input input#messageInput").value;
+    if(message.trim() == ""){
+         return alert("input message can not be empty")
+         
+    }
+        namespaceSocket.emit("newMessage", message)
+    namespaceSocket.on("confirm", data => {
+        console.log(data);
+    })
+
+    const li = stringToHTML(`
+        <li class="sent">
+            <img src="https://example.com/profile.jpg" alt="" />
+            <p>${message}</p>
+        </li>
+    `);
+        document.querySelector(".messages ul").appendChild(li)
+        document.querySelector(".message-input input #messageInput").value = ""
+        const messagesElement = document.querySelector("div.messages");
+        messagesElement.scrollTo(0, messagesElement.scrollHeight);
+    
+}
+
+
+
+
+
+
 
 
 
@@ -82,4 +143,18 @@ socket.on("connect", () => {
             })
         }
     })
-})    
+
+    window.addEventListener("keydown", (e) => {
+        if(e.code === "Enter"){
+            sendMessage();
+        }
+    })
+    document.querySelector("button.submit").addEventListener("click", () => {
+        sendMessage()
+    })
+
+
+})
+
+
+
