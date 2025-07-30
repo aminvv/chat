@@ -3,7 +3,7 @@ const { default: mongoose, model } = require("mongoose");
 const messageSchema = new mongoose.Schema({
     sender:{type:mongoose.Types.ObjectId,ref:"user"},
     message:{type:String,},
-    dataTime:{type:String,},
+    dataTime:{type:Number},
 })
 
 

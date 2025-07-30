@@ -54,15 +54,29 @@ module.exports = class NamespaceSocketHandler {
 
 
      getNewMessage(socket) {
-        socket.on("newMessage",data=>{
-            console.log(data);
-        })
-    }
+    // ابتدا تابع handler را تعریف کنید
+    const messageHandler = async (data) => {
+        const {message, roomName, endpoint} = data;
+        await ConversationModel.updateOne({endpoint,"rooms.name":roomName},{
+            $push:{
+                "rooms.$.messages":{
+                    message,
+                    sender:"1d54789db65a2b57b4e6a6b4",
+                    dateTime:Date.now()
+                }
+            }
+        });
+    };
+
+    // حالا به این صورت استفاده کنید:
+    socket.off("newMessage", messageHandler); // تغییر اصلی اینجا است
+    socket.on("newMessage", messageHandler);
+}
 
 
 
 
 }
 
-
+ 
 
