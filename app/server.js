@@ -6,6 +6,10 @@ const { socketHandler } = require("./socket.io");
 const SwaggerConfig = require("./../config/swagger.config");
 const connectToDB = require("../config/mongoose.config");
 const createError = require('http-errors'); 
+const cookieParser = require("cookie-parser");
+const { COOKIE_PARSER_SECRET_KEY } = require("./utils/constant");
+const session = require("express-session");
+const { clientHelper } = require("./utils/client");
 
 
 
@@ -17,6 +21,7 @@ module.exports = class Application {
     this.#PORT = PORT;
     this.#DB_URI = DB_URI;
     this.configApplication()
+    this.initClientSession()
     this.createServer()
     this.connectToMongoDB()
     this.initSwagger();
@@ -54,7 +59,24 @@ module.exports = class Application {
     this.#app.set("layout extractStyles", true);
     this.#app.set("layout extractScripts", true);
     this.#app.set("layout", "./layouts/master");
+    this.#app.use((req,res,next)=>{
+      this.#app.locals=clientHelper(req,res)
+      next()
+    });
 
+
+  }
+
+  initClientSession(){
+    this.#app.use(cookieParser(COOKIE_PARSER_SECRET_KEY))
+    this.#app.use(session({
+      secret: COOKIE_PARSER_SECRET_KEY,
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+        secure: true
+      }
+    }))
   }
 
 

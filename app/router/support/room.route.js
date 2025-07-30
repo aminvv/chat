@@ -7,6 +7,9 @@ router.post("/add",uploadFile.single("image"),RoomController.addRoom)
 router.get("/list",RoomController.getListOfRoom)
 
 
+
+
+
 module.exports={
     apiRoomRouter:router
 }

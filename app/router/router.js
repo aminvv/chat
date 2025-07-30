@@ -5,7 +5,6 @@ const router = require("express").Router();
 
 router.use("/support", SupportSectionRouter);
 router.use("/user", UserAuthRoutes);
-
 module.exports = {
     AllRoutes : router
 };

@@ -1,10 +1,10 @@
-const { UserModel } = require("../../models/users");
+const { UserModel } = require("../../models/user.model");
 
 async function checkLogin(req, res, next){
     try {
         const token = req.signedCookies["authorization"];
         if(token){
-            const user = await UserModel.findOne({token}, { password: 0})
+            const user = await UserModel.findOne({token})
             if(user){
                 req.user = user;
                 return next()
@@ -21,7 +21,7 @@ async function checkAccessLogin(req, res, next){
     try {
         const token = req.signedCookies["authorization"];
         if(token){
-            const user = await UserModel.findOne({token}, { password: 0})
+            const user = await UserModel.findOne({token})
             if(user){
                 req.user = user;
                 return res.redirect("/support")
