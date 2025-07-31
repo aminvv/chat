@@ -1,4 +1,4 @@
-function clientHelper(req, res){
+function clientHelper(req, res) {
     return {
         req
     }

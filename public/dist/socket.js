@@ -63,7 +63,6 @@ function getRoomInfo(endpoint, roomName) {
 
 
 
-
 function sendMessage() {
     const roomName = document.querySelector("#roomName h3").getAttribute("roomName")
     const endpoint = document.querySelector("#roomName h3").getAttribute("endpoint")
@@ -72,7 +71,10 @@ function sendMessage() {
         alert("input message can not be empty")
         return
     }
-    namespaceSocket.emit("newMessage", { message, roomName, endpoint })
+
+const userID = document.getElementById("userID").value
+console.log(userID);
+    namespaceSocket.emit("newMessage", { message, roomName, endpoint, sender: userID })
     namespaceSocket.on("confirm", data => {
         console.log(data);
     })
@@ -84,7 +86,7 @@ function sendMessage() {
         </li>
     `);
     document.querySelector(".messages ul").appendChild(li)
-    document.querySelector(".message-input input #messageInput").value = ""
+    document.querySelector(".message-input input#messageInput").value = ""
     const messagesElement = document.querySelector("div.messages");
     messagesElement.scrollTo(0, messagesElement.scrollHeight);
 

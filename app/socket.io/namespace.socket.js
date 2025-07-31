@@ -56,12 +56,13 @@ module.exports = class NamespaceSocketHandler {
      getNewMessage(socket) {
     // ابتدا تابع handler را تعریف کنید
     const messageHandler = async (data) => {
-        const {message, roomName, endpoint} = data;
+        console.log(data);
+        const {message, roomName, endpoint,sender} = data;
         await ConversationModel.updateOne({endpoint,"rooms.name":roomName},{
             $push:{
                 "rooms.$.messages":{
                     message,
-                    sender:"1d54789db65a2b57b4e6a6b4",
+                    sender,
                     dateTime:Date.now()
                 }
             }
