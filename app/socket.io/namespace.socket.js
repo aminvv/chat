@@ -19,7 +19,7 @@ module.exports = class NamespaceSocketHandler {
         const namespaces = await ConversationModel.find({}, { title: 1, endpoint: 1, rooms: 1 }).sort({ _id: 1 })
         for (const namespace of namespaces) {
             this.#io.of(`/${namespace.endpoint}`).on("connection", async (socket) => {
-                const conversation = await ConversationModel.findOne({ endpoint: namespace.endpoint }, { rooms: 1,endpoint:1 }).sort({ _id: 1 }).lean();
+                const conversation = await ConversationModel.findOne({ endpoint: namespace.endpoint }, { rooms: 1, endpoint: 1 }).sort({ _id: 1 }).lean();
 
 
                 socket.on("joinRoom", async roomName => {
@@ -34,7 +34,7 @@ module.exports = class NamespaceSocketHandler {
                     const roomInfo = conversation.rooms.find(item => item.name == roomName)
                     socket.emit("roomInfo", roomInfo)
                     this.getNewMessage(socket)
-                    socket.on("disconnect", async()=>{
+                    socket.on("disconnect", async () => {
                         await this.getCountOfOnlineUsers(conversation.endpoint, roomName)
                     })
                 })
@@ -47,37 +47,32 @@ module.exports = class NamespaceSocketHandler {
 
 
 
-   async getCountOfOnlineUsers(endpoint, roomName) {
+    async getCountOfOnlineUsers(endpoint, roomName) {
         const onlineUsers = await this.#io.of(`/${endpoint}`).in(roomName).allSockets()
         this.#io.of(`/${endpoint}`).in(roomName).emit("countOfOnlineUsers", Array.from(onlineUsers).length)
     }
 
 
-     getNewMessage(socket) {
-    // ابتدا تابع handler را تعریف کنید
-    const messageHandler = async (data) => {
-        console.log(data);
-        const {message, roomName, endpoint,sender} = data;
-        await ConversationModel.updateOne({endpoint,"rooms.name":roomName},{
-            $push:{
-                "rooms.$.messages":{
-                    message,
-                    sender,
-                    dateTime:Date.now()
+    getNewMessage(socket) {
+        socket.on("newMessage", async data => {
+            const { message, roomName, endpoint, sender } = data
+            await ConversationModel.updateOne({ endpoint, "rooms.name": roomName }, {
+                $push: {
+                    "rooms.$.messages": {
+                        sender: String(data.sender),
+                         message,
+                        dateTime: Date.now()
+                    }
                 }
-            }
-        });
-    };
-
-    // حالا به این صورت استفاده کنید:
-    socket.off("newMessage", messageHandler); // تغییر اصلی اینجا است
-    socket.on("newMessage", messageHandler);
-}
+            })
+            this.#io.of(`/${endpoint}`).in(roomName).emit("confirmMessage", data)
+        })
+    }
 
 
 
 
 }
 
- 
+
 
