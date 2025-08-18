@@ -34,6 +34,7 @@ module.exports = class NamespaceSocketHandler {
                     const roomInfo = conversation.rooms.find(item => item.name == roomName)
                     socket.emit("roomInfo", roomInfo)
                     this.getNewMessage(socket)
+                    this.getNewLocation(socket)
                     socket.on("disconnect", async () => {
                         await this.getCountOfOnlineUsers(conversation.endpoint, roomName)
                     })
@@ -69,6 +70,21 @@ module.exports = class NamespaceSocketHandler {
         })
     }
 
+    getNewLocation(socket) {
+        socket.on("newLocation", async data => {
+            const { location, roomName, endpoint, sender } = data
+            await ConversationModel.updateOne({ endpoint, "rooms.name": roomName }, {
+                $push: {
+                    "rooms.$.locations": {
+                        sender: String(data.sender),
+                         location,
+                        dateTime: Date.now()
+                    }
+                }
+            })
+            this.#io.of(`/${endpoint}`).in(roomName).emit("confirmLocation", data)
+        })
+    }
 
 
 

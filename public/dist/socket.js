@@ -55,6 +55,9 @@ function getRoomInfo(endpoint, roomName) {
         document.querySelector(".messages ul").innerHTML = ""
         document.querySelector("#roomName h3").innerText = roomInfo.description
         const messages = roomInfo.messages;
+        const locations = roomInfo.locations;
+        const data=[...messages,...locations].sort((con1,con2)=>{con1.dateTime-con2.dateTime})
+        console.log(data);
         const userID = document.getElementById("userID").value;
         for (const message of messages) {
             const li = stringToHTML(`
@@ -86,7 +89,6 @@ function sendMessage() {
     }
 
     const userID = document.getElementById("userID").value
-    console.log(userID);
     namespaceSocket.emit("newMessage", { message, roomName, endpoint, sender: userID })
     namespaceSocket.on("confirm", data => {
         console.log(data);

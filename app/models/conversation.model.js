@@ -7,12 +7,20 @@ const messageSchema = new mongoose.Schema({
 })
 
 
+const locationSchema = new mongoose.Schema({
+    sender:{type:mongoose.Types.ObjectId,ref:"user"},
+    location:{type:Object,default:{}},
+    dataTime:{type:Number},
+})
+
+
 
 const roomSchema = new mongoose.Schema({
     name:{type:String,},
     description:{type:String,},
     image:{type:String,},
     messages:{type:[messageSchema],default:[]},
+    locations:{type:[locationSchema],default:[]},
 })
 
 
