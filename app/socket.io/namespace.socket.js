@@ -1,5 +1,6 @@
 const { ConversationModel } = require("../models/conversation.model")
-
+const fs = require("fs");
+const path = require("path");
 module.exports = class NamespaceSocketHandler {
     #io
     constructor(io) {
@@ -33,6 +34,7 @@ module.exports = class NamespaceSocketHandler {
                     await this.getCountOfOnlineUsers(conversation.endpoint, roomName)
                     const roomInfo = conversation.rooms.find(item => item.name == roomName)
                     socket.emit("roomInfo", roomInfo)
+                    this.uploadFiles(socket)
                     this.getNewMessage(socket)
                     this.getNewLocation(socket)
                     socket.on("disconnect", async () => {
@@ -61,7 +63,7 @@ module.exports = class NamespaceSocketHandler {
                 $push: {
                     "rooms.$.messages": {
                         sender: String(data.sender),
-                         message,
+                        message,
                         dateTime: Date.now()
                     }
                 }
@@ -77,7 +79,7 @@ module.exports = class NamespaceSocketHandler {
                 $push: {
                     "rooms.$.locations": {
                         sender: String(data.sender),
-                         location,
+                        location,
                         dateTime: Date.now()
                     }
                 }
@@ -86,6 +88,19 @@ module.exports = class NamespaceSocketHandler {
         })
     }
 
+uploadFiles(socket) {
+    socket.on("upload", ({ file, filename }, callback) => {
+        const ext = path.extname(filename);
+        const savePath = "public/uploads/sockets/" + String(Date.now() + ext);
+
+        // تبدیل فایل به Buffer اگر File object هست
+        const buffer = Buffer.isBuffer(file) ? file : Buffer.from(Object.values(file));
+
+        fs.writeFile(savePath, buffer, (err) => {
+            callback({ message: err ? "failure" : "success" });
+        });
+    });
+}
 
 
 }
